@@ -715,4 +715,5 @@ button:hover {
 }
 input:focus::placeholder {
   color: transparent;
+
 }
