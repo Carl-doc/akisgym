@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS membership_db;
-USE membership_db;
+CREATE DATABASE IF NOT EXISTS akisgym_db;
+USE akisgym_db;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
