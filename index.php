@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aki's Fitness Gym</title>
+<<<<<<< HEAD
     <link rel="stylesheet" href="/akisgym/assets/css/style.css">
+=======
+    <link rel="stylesheet" href="assets/css/style.css">
+>>>>>>> 5c2caba56f7ebe90101feaa528029db4036d673d
 </head>
 <body class="landing-body">
 
