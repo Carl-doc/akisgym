@@ -23,7 +23,7 @@
                     <a href="#">BLOG</a>
                 </nav>
 
-                <a href="/gymMembership/auth/login.php" class="sign-in-btn">SIGN IN</a>
+                <a href="akisgym/client/src/auth/login.php" class="sign-in-btn">SIGN IN</a>
             </header>
 
             <div class="hero-content">
