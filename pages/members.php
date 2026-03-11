@@ -231,7 +231,9 @@ $members = mysqli_query($conn, "SELECT * FROM tbl_member ORDER BY member_id ASC"
 
     <aside class="saas-sidebar">
         <div class="saas-brand">
-            <div class="saas-brand-logo"></div>
+            <div class="saas-brand-logo">
+    <img src="../assets/logo/logo.png" alt="Gym Logo">
+</div>
             <div class="saas-brand-text">Aki's Fitness Gym</div>
         </div>
 
@@ -297,46 +299,42 @@ $members = mysqli_query($conn, "SELECT * FROM tbl_member ORDER BY member_id ASC"
                 <div class="members-search">
                     <input type="text" id="memberSearch" placeholder="Search by name, contact, or email">
                 </div>
+<div style="text-align: right;">
+    <button class="add-member-btn" id="openModalBtn" style="padding: 4px 10px; font-size: 13px;">+ Add Member</button>
+</div>
 
-                <button class="add-member-btn" id="openModalBtn">+ Add Member</button>
-            </div>
-
-            <div class="members-table">
-                <table id="membersTable">
-                    <thead>
-                        <tr>
-                            <th>Member ID</th>
-                            <th>Name</th>
-                            <th>Contact</th>
-                            <th>Email</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php while($row = mysqli_fetch_assoc($members)): ?>
-                        <tr
-                            data-db-id="<?php echo $row['member_id']; ?>"
-                            data-code="<?php echo htmlspecialchars(str_replace('MBR-', '', $row['member_code'])); ?>"
-                            data-name="<?php echo htmlspecialchars(trim($row['first_name'] . ' ' . $row['last_name'])); ?>"
-                            data-contact="<?php echo htmlspecialchars($row['phone']); ?>"
-                            data-email="<?php echo htmlspecialchars($row['email']); ?>"
-                        >
-                            <td><?php echo htmlspecialchars(str_replace('MBR-', '', $row['member_code'])); ?></td>
-                            <td><?php echo htmlspecialchars(trim($row['first_name'] . ' ' . $row['last_name'])); ?></td>
-                            <td><?php echo htmlspecialchars($row['phone']); ?></td>
-                            <td><?php echo htmlspecialchars($row['email']); ?></td>
-                            <td class="action-buttons">
-                                <button class="edit-btn" type="button">Edit</button>
-                                <a class="delete-btn" href="members.php?delete=<?php echo $row['member_id']; ?>" onclick="return confirm('Are you sure you want to delete this member?')">Delete</a>
-                            </td>
-                        </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
-            </div>
-
-        </main>
-    </div>
+            <div class="members-table" style="width: 100%;">
+    <table id="membersTable" style="width: 100%;">
+        <thead>
+            <tr>
+                <th>Member ID</th>
+                <th>Name</th>
+                <th>Contact</th>
+                <th>Email</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php while($row = mysqli_fetch_assoc($members)): ?>
+            <tr
+                data-db-id="<?php echo $row['member_id']; ?>"
+                data-code="<?php echo htmlspecialchars(str_replace('MBR-', '', $row['member_code'])); ?>"
+                data-name="<?php echo htmlspecialchars(trim($row['first_name'] . ' ' . $row['last_name'])); ?>"
+                data-contact="<?php echo htmlspecialchars($row['phone']); ?>"
+                data-email="<?php echo htmlspecialchars($row['email']); ?>"
+            >
+                <td><?php echo htmlspecialchars(str_replace('MBR-', '', $row['member_code'])); ?></td>
+                <td><?php echo htmlspecialchars(trim($row['first_name'] . ' ' . $row['last_name'])); ?></td>
+                <td><?php echo htmlspecialchars($row['phone']); ?></td>
+                <td><?php echo htmlspecialchars($row['email']); ?></td>
+                <td class="action-buttons">
+                    <button class="edit-btn" type="button">Edit</button>
+                    <a class="delete-btn" href="members.php?delete=<?php echo $row['member_id']; ?>" onclick="return confirm('Are you sure you want to delete this member?')">Delete</a>
+                </td>
+            </tr>
+            <?php endwhile; ?>
+        </tbody>
+    </table>
 </div>
 
 <div class="modal-overlay" id="memberModal">
