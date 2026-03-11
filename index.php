@@ -6,9 +6,8 @@
     <title>Aki's Fitness Gym</title>
 
     <link rel="stylesheet" href="/akisgym/assets/css/style.css">
-
     <link rel="stylesheet" href="assets/css/style.css">
-    
+
 </head>
 <body class="landing-body">
 

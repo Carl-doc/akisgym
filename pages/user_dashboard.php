@@ -300,7 +300,9 @@ function paymentStatusClass($status) {
 
     <aside class="saas-sidebar">
         <div class="saas-brand">
-            <div class="saas-brand-logo"></div>
+            <div class="saas-brand-logo">
+    <img src="../assets/logo/logo.png" alt="Gym Logo">
+</div>
             <div class="saas-brand-text">Aki's Fitness Gym</div>
         </div>
 

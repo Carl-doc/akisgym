@@ -11,11 +11,11 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 }
 
 $first_name = mysqli_real_escape_string($conn, trim($_POST['first_name'] ?? ''));
-$last_name = mysqli_real_escape_string($conn, trim($_POST['last_name'] ?? ''));
-$email = mysqli_real_escape_string($conn, trim($_POST['email'] ?? ''));
-$phone = mysqli_real_escape_string($conn, trim($_POST['phone'] ?? ''));
-$gender = mysqli_real_escape_string($conn, trim($_POST['gender'] ?? ''));
-$password = trim($_POST['password'] ?? '');
+$last_name  = mysqli_real_escape_string($conn, trim($_POST['last_name'] ?? ''));
+$email      = mysqli_real_escape_string($conn, trim($_POST['email'] ?? ''));
+$phone      = mysqli_real_escape_string($conn, trim($_POST['phone'] ?? ''));
+$gender     = mysqli_real_escape_string($conn, trim($_POST['gender'] ?? ''));
+$password   = trim($_POST['password'] ?? '');
 $confirm_password = trim($_POST['confirm_password'] ?? '');
 
 if (
