@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | Aki's Fitness Gym</title>
-    <link rel="stylesheet" href="/akisgym/assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body class="saas-body">
 
@@ -13,8 +13,8 @@
     <aside class="saas-sidebar" id="sidebar">
         <div class="saas-brand">
             <div class="saas-brand-logo">
-    <img src="../assets/logo/logo.png" alt="Gym Logo">
-</div>
+                <img src="../assets/logo/logo.png" alt="Gym Logo">
+            </div>
             <div class="saas-brand-text">Aki's Fitness Gym</div>
         </div>
 

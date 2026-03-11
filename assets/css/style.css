@@ -1,3 +1,5 @@
+/*GLOBAL RESET
+*/
 *{
     margin:0;
     padding:0;
@@ -10,19 +12,24 @@ html, body{
     font-family:Arial, Helvetica, sans-serif;
 }
 
-/* LANDING PAGE */
-
+/*LANDING PAGE - BODY
+*/
 body.landing-body{
     background:#000;
     color:#fff;
     overflow:hidden;
+    font-family:Arial, Helvetica, sans-serif;
 }
 
+/*LANDING PAGE - WRAPPER
+*/
 .landing-wrapper{
     width:100%;
     height:100vh;
 }
 
+/*LANDING PAGE - HERO PANEL
+*/
 .hero-panel{
     width:100%;
     height:100vh;
@@ -38,6 +45,16 @@ body.landing-body{
     box-shadow:0 0 40px rgba(0,0,0,0.35);
 }
 
+.hero-panel::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:radial-gradient(circle at center, transparent 35%, rgba(0,0,0,0.2) 100%);
+    z-index:1;
+}
+
+/*LANDING PAGE - NAVBAR
+*/
 .hero-navbar{
     display:flex;
     align-items:center;
@@ -115,6 +132,8 @@ body.landing-body{
     background:#1f3d42;
 }
 
+/*LANDING PAGE - HERO CONTENT
+*/
 .hero-content{
     position:absolute;
     top:50%;
@@ -146,16 +165,8 @@ body.landing-body{
     margin:auto;
 }
 
-.hero-panel::before{
-    content:"";
-    position:absolute;
-    inset:0;
-    background:radial-gradient(circle at center, transparent 35%, rgba(0,0,0,0.2) 100%);
-    z-index:1;
-}
-
-/* LOGIN PAGE */
-
+/*LOGIN PAGE
+*/
 body.auth-body{
     margin:0;
     background:#000;
@@ -209,15 +220,7 @@ body.auth-body{
     width:100%;
     height:100%;
     object-fit:cover;
-    transform: scale(1.4);
-}
-
-.login-logo::before{
-    transform:translate(-50%,-50%) rotate(40deg);
-}
-
-.login-logo::after{
-    transform:translate(-50%,-50%) rotate(-40deg);
+    transform:scale(1.4);
 }
 
 .login-title{
@@ -285,8 +288,8 @@ body.auth-body{
     text-decoration:underline;
 }
 
-/* SAAS DASHBOARD */
-
+/*SAAS DASHBOARD - PAGE BODY
+*/
 body.saas-body{
     margin:0;
     background:#f8fafc;
@@ -294,24 +297,43 @@ body.saas-body{
     color:#0f172a;
 }
 
+/*SAAS DASHBOARD - MAIN LAYOUT
+*/
 .saas-layout{
     display:flex;
     min-height:100vh;
+    width:100%;
 }
 
+.saas-main{
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+}
+
+/*SAAS DASHBOARD - SIDEBAR
+*/
 .saas-sidebar{
     width:260px;
+    min-width:260px;
     background:#ffffff;
     border-right:1px solid #e5e7eb;
     padding:24px 16px;
     transition:0.3s ease;
     overflow:hidden;
+    flex-shrink:0;
+    display:flex;
+    flex-direction:column;
 }
 
 .saas-sidebar.collapsed{
     width:88px;
+    min-width:88px;
 }
 
+/*SAAS DASHBOARD - SIDEBAR BRAND / LOGO AREA
+*/
 .saas-brand{
     display:flex;
     align-items:center;
@@ -321,40 +343,34 @@ body.saas-body{
 }
 
 .saas-brand-logo{
-    width:42px;
-    height:42px;
-    border-radius:14px;
-    background:#111827;
-    position:relative;
+    width:46px;
+    height:46px;
+    border-radius:50%;
+    overflow:hidden;
     flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#ffffff;
 }
 
-.saas-brand-logo::before,
-.saas-brand-logo::after{
-    content:"";
-    position:absolute;
-    top:50%;
-    left:50%;
-    width:28px;
-    height:1px;
-    background:#fff;
-    transform-origin:center;
-}
-
-.saas-brand-logo::before{
-    transform:translate(-50%,-50%) rotate(45deg);
-}
-
-.saas-brand-logo::after{
-    transform:translate(-50%,-50%) rotate(-45deg);
+.saas-brand-logo img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
 }
 
 .saas-brand-text{
     font-weight:700;
     font-size:18px;
     white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
 }
 
+/*SAAS DASHBOARD - SIDEBAR MENU
+*/
 .saas-menu{
     display:flex;
     flex-direction:column;
@@ -394,12 +410,8 @@ body.saas-body{
     display:none;
 }
 
-.saas-main{
-    flex:1;
-    display:flex;
-    flex-direction:column;
-}
-
+/*SAAS DASHBOARD - TOPBAR / HEADER
+*/
 .saas-topbar{
     display:flex;
     justify-content:space-between;
@@ -436,6 +448,8 @@ body.saas-body{
     cursor:pointer;
 }
 
+/*SAAS DASHBOARD - TOPBAR RIGHT SIDE
+*/
 .saas-topbar-right{
     display:flex;
     align-items:center;
@@ -480,10 +494,14 @@ body.saas-body{
     font-weight:700;
 }
 
+/*SAAS DASHBOARD - MAIN CONTENT AREA
+*/
 .saas-content{
     padding:28px;
 }
 
+/*SAAS DASHBOARD - STAT CARDS
+*/
 .saas-stats{
     display:grid;
     grid-template-columns:repeat(4, 1fr);
@@ -520,6 +538,8 @@ body.saas-body{
     opacity:0.35;
 }
 
+/*SAAS DASHBOARD - CHART CARD
+*/
 .saas-chart-card{
     background:#ffffff;
     border:1px solid #e5e7eb;
@@ -539,6 +559,8 @@ body.saas-body{
     font-size:14px;
 }
 
+/*SAAS DASHBOARD - CHART AREA
+*/
 .saas-chart{
     margin-top:28px;
     height:320px;
@@ -580,6 +602,29 @@ body.saas-body{
     text-transform:uppercase;
 }
 
+/*SHARED BUTTONS
+*/
+.edit-btn{
+    background:#22c55e;
+    color:white;
+    border:none;
+    padding:6px 10px;
+    border-radius:8px;
+    cursor:pointer;
+    margin-right:6px;
+}
+
+.delete-btn{
+    background:#ef4444;
+    color:white;
+    border:none;
+    padding:6px 10px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+/*RESPONSIVE
+*/
 @media (max-width:1100px){
     .saas-stats{
         grid-template-columns:repeat(2, 1fr);
@@ -593,11 +638,13 @@ body.saas-body{
 
     .saas-sidebar{
         width:100%;
+        min-width:100%;
         padding:16px;
     }
 
     .saas-sidebar.collapsed{
         width:100%;
+        min-width:100%;
     }
 
     .saas-brand-text,
@@ -628,101 +675,28 @@ body.saas-body{
     .saas-content{
         padding:18px;
     }
-}
 
-.edit-btn{
-background:#22c55e;
-color:white;
-border:none;
-padding:6px 10px;
-border-radius:8px;
-cursor:pointer;
-margin-right:6px;
-}
+    .hero-navbar{
+        flex-direction:column;
+        gap:20px;
+        padding:24px 20px;
+    }
 
-.delete-btn{
-background:#ef4444;
-color:white;
-border:none;
-padding:6px 10px;
-border-radius:8px;
-cursor:pointer;
-}
+    .hero-nav{
+        gap:20px;
+        flex-wrap:wrap;
+        justify-content:center;
+    }
 
-/* ELogin Page */
-.login-body{
-    font-family: Arial, sans-serif;
-    background: linear-gradient(120deg, #000000, #FFFFFF);
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 0;
-}
-.login-container {
-    columns: 2;
-    background: white;
-    padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    width: 300px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-}
-.login-container h2 {
-    margin-bottom: 20px;
-    color: #333;
-}
-.input-group{
-    margin-bottom: 15px;
-    text-align: left;
-    justify-content: center;
-    padding-right: 20px;
-}
-.input-group input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 14px;
-}
-button {
-  background-color: #2c4e56;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  width: 100%;
-  font-size: 16px;
-  transition: background 0.3s;
-}
-button:hover {
-  background-color: #2c4e56;
-}
-.logo{
-    width: 200px;
-    height: auto;
-}
-input:focus::placeholder {
-  color: transparent;
+    .hero-content{
+        width:90%;
+    }
 
-}
+    .hero-title{
+        font-size:52px;
+    }
 
-.saas-brand-logo{
-    width:50px;
-    height:50px;
-    border-radius:50%;
-    overflow:hidden;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-}
-
-.saas-brand-logo img{
-    width:150%;   
-    height:150%;
-    object-fit:cover;
+    .hero-description{
+        font-size:16px;
+    }
 }
