@@ -71,31 +71,19 @@ body.landing-body{
 }
 
 .brand-logo{
-    width:50px;
-    height:50px;
-    border-radius:50%;
-    border:2px solid rgba(255,255,255,0.9);
-    position:relative;
+    width:65px;
+    height:65px;
+    border-radius:65%;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 }
 
-.brand-logo::before,
-.brand-logo::after{
-    content:"";
-    position:absolute;
-    top:50%;
-    left:50%;
-    width:36px;
-    height:1px;
-    background:#fff;
-    transform-origin:center;
-}
-
-.brand-logo::before{
-    transform:translate(-50%,-50%) rotate(45deg);
-}
-
-.brand-logo::after{
-    transform:translate(-50%,-50%) rotate(-45deg);
+.brand-logo img{
+    width:145%;
+    height:145%;
+    object-fit:cover;
 }
 
 .brand-name{

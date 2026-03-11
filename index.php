@@ -13,7 +13,12 @@
 
             <header class="hero-navbar">
                 <div class="brand">
-                    <div class="brand-logo"></div>
+
+                    <!-- LOGO -->
+                    <div class="brand-logo">
+                        <img src="assets/logo/logo.png" alt="Gym Logo">
+                    </div>
+
                     <span class="brand-name">Aki's Fitness Gym</span>
                 </div>
 
