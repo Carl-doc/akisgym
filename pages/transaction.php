@@ -38,16 +38,9 @@ $transactions = mysqli_query($conn, $query);
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Transactions | Aki's Fitness Gym</title>
-<<<<<<< HEAD
-<link rel="stylesheet" href="../assets/css/style.css">
-
-<style>
-/* TRANSACTION PAGE - STAT CARDS */
-=======
 <link rel="stylesheet" href="/akisgym/assets/css/style.css">
 
 <style>
->>>>>>> a62cf78f711574858fe912f3e3272a093490a6fb
 .transaction-stats{
     display:grid;
     grid-template-columns:repeat(3, 1fr);
@@ -85,10 +78,6 @@ $transactions = mysqli_query($conn, $query);
     opacity:0.35;
 }
 
-<<<<<<< HEAD
-/* TRANSACTION PAGE - TOOLBAR / SEARCH */
-=======
->>>>>>> a62cf78f711574858fe912f3e3272a093490a6fb
 .transaction-toolbar{
     display:flex;
     justify-content:space-between;
@@ -113,10 +102,6 @@ $transactions = mysqli_query($conn, $query);
     background:#fff;
 }
 
-<<<<<<< HEAD
-/* TRANSACTION PAGE - TABLE */
-=======
->>>>>>> a62cf78f711574858fe912f3e3272a093490a6fb
 .transaction-table{
     background:#ffffff;
     border-radius:20px;
@@ -148,10 +133,6 @@ $transactions = mysqli_query($conn, $query);
     background:#f8fafc;
 }
 
-<<<<<<< HEAD
-/* TRANSACTION PAGE - TITLES */
-=======
->>>>>>> a62cf78f711574858fe912f3e3272a093490a6fb
 .page-title{
     margin-bottom:8px;
 }
@@ -167,10 +148,6 @@ $transactions = mysqli_query($conn, $query);
     margin-bottom:20px;
 }
 
-<<<<<<< HEAD
-/* TRANSACTION PAGE - BADGES */
-=======
->>>>>>> a62cf78f711574858fe912f3e3272a093490a6fb
 .method-badge,
 .payment-badge{
     display:inline-block;
@@ -206,10 +183,6 @@ $transactions = mysqli_query($conn, $query);
     color:#374151;
 }
 
-<<<<<<< HEAD
-/* TRANSACTION PAGE - RESPONSIVE */
-=======
->>>>>>> a62cf78f711574858fe912f3e3272a093490a6fb
 @media (max-width:900px){
     .transaction-stats{
         grid-template-columns:1fr;
@@ -223,13 +196,9 @@ $transactions = mysqli_query($conn, $query);
 
     <aside class="saas-sidebar">
         <div class="saas-brand">
-<<<<<<< HEAD
             <div class="saas-brand-logo">
                 <img src="../assets/logo/logo.png" alt="Gym Logo">
             </div>
-=======
-            <div class="saas-brand-logo"></div>
->>>>>>> a62cf78f711574858fe912f3e3272a093490a6fb
             <div class="saas-brand-text">Aki's Fitness Gym</div>
         </div>
 
