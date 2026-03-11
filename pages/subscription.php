@@ -291,7 +291,9 @@ $subscriptions = mysqli_query($conn,$query);
 
     <aside class="saas-sidebar">
         <div class="saas-brand">
-            <div class="saas-brand-logo"></div>
+            <div class="saas-brand-logo">
+    <img src="../assets/logo/logo.png" alt="Gym Logo">
+</div>
             <div class="saas-brand-text">Aki's Fitness Gym</div>
         </div>
 
@@ -356,10 +358,13 @@ $subscriptions = mysqli_query($conn,$query);
             <div class="subscription-toolbar">
                 <div class="subscription-search">
                     <input type="text" id="subscriptionSearch" placeholder="Search by member or plan">
-                </div>
+                
 
-                <button class="add-subscription-btn" id="openSubscriptionModal">+ Add Subscription</button>
-            </div>
+                </div>
+<div style="text-align: right;">
+    <button class="add-subscription-btn" id="openSubscriptionModal" style="padding: 4px 10px; font-size: 13px;">+ Add Subscription</button>
+</div>
+</div>
 
             <div class="subscription-table">
                 <table id="subscriptionTable">
