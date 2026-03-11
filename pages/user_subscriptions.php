@@ -32,47 +32,35 @@ mysqli_query($conn, "
     AND status != 'cancelled'
 ");
 
-/* CHOOSE PLAN */
-if(isset($_POST['choose_plan'])){
-    $plan_id = mysqli_real_escape_string($conn, $_POST['plan_id']);
-
-    $active_check = mysqli_query($conn, "
-        SELECT member_subscription_id
-        FROM tbl_member_subscriptions
-        WHERE member_id = '$member_id'
-        AND status IN ('active', 'pending')
-        LIMIT 1
-    ");
-
-    if(mysqli_num_rows($active_check) > 0){
-        header("Location: user_subscriptions.php?exists=1");
-        exit();
-    }
-
-    $plan_query = mysqli_query($conn, "
-        SELECT subscription_id, duration_days
-        FROM tbl_subscription
-        WHERE subscription_id = '$plan_id'
-        LIMIT 1
-    ");
-
-    if($plan_query && mysqli_num_rows($plan_query) > 0){
-        $plan = mysqli_fetch_assoc($plan_query);
-
-        $start_date = date("Y-m-d");
-        $end_date = date("Y-m-d", strtotime("+".$plan['duration_days']." days"));
-
-        mysqli_query($conn, "
-            INSERT INTO tbl_member_subscriptions
-            (member_id, subscription_id, start_date, end_date, status)
-            VALUES
-            ('$member_id', '".$plan['subscription_id']."', '$start_date', '$end_date', 'active')
-        ");
-
-        header("Location: user_subscriptions.php?success=1");
-        exit();
-    }
-}
+/*
+|--------------------------------------------------------------------------
+| PLAN FEATURES / INCLUSIONS
+|--------------------------------------------------------------------------
+| You can edit these anytime
+*/
+$plan_features = [
+    'Regular' => [
+        'Access to gym equipment',
+        'Locker room access',
+        'Basic fitness assessment',
+        'Standard workout area',
+    ],
+    'Premium' => [
+        'Access to gym equipment',
+        'Group exercise classes',
+        'Locker room access',
+        'Basic fitness assessment',
+        'Priority support at reception',
+    ],
+    'VIP' => [
+        'Full gym equipment access',
+        'Group exercise classes',
+        'Personal trainer support',
+        'Priority locker room access',
+        'Exclusive VIP assistance',
+        'Advanced fitness assessment',
+    ]
+];
 
 /* LOAD AVAILABLE PLANS */
 $plans = mysqli_query($conn, "
@@ -147,6 +135,25 @@ $plans = mysqli_query($conn, "
     text-transform:capitalize;
 }
 
+.plan-inclusion-title{
+    font-size:15px;
+    font-weight:800;
+    color:#0f172a;
+    margin-bottom:10px;
+}
+
+.plan-inclusion-list{
+    margin:0 0 22px;
+    padding-left:18px;
+    color:#475569;
+    font-size:14px;
+}
+
+.plan-inclusion-list li{
+    margin-bottom:8px;
+    line-height:1.4;
+}
+
 .choose-plan-btn{
     width:100%;
     border:none;
@@ -157,6 +164,14 @@ $plans = mysqli_query($conn, "
     font-weight:700;
     height:46px;
     cursor:pointer;
+    text-decoration:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.choose-plan-btn:hover{
+    opacity:.95;
 }
 
 .success-box{
@@ -194,7 +209,9 @@ $plans = mysqli_query($conn, "
 
     <aside class="saas-sidebar">
         <div class="saas-brand">
-            <div class="saas-brand-logo"></div>
+            <div class="saas-brand-logo">
+    <img src="../assets/logo/logo.png" alt="Gym Logo">
+</div>
             <div class="saas-brand-text">Aki's Fitness Gym</div>
         </div>
 
@@ -238,6 +255,13 @@ $plans = mysqli_query($conn, "
 
             <div class="plan-grid">
                 <?php while($plan = mysqli_fetch_assoc($plans)): ?>
+                    <?php
+                        $current_plan_name = trim($plan['plan_name']);
+                        $features = $plan_features[$current_plan_name] ?? [
+                            'Access to available gym facilities',
+                            'Standard membership benefits'
+                        ];
+                    ?>
                     <div class="plan-card">
                         <div>
                             <div class="plan-name"><?php echo htmlspecialchars($plan['plan_name']); ?></div>
@@ -245,12 +269,18 @@ $plans = mysqli_query($conn, "
                             <div class="plan-price">₱<?php echo number_format($plan['price'], 2); ?></div>
                             <div class="plan-duration"><?php echo htmlspecialchars($plan['duration_days']); ?> days</div>
                             <div class="plan-access"><?php echo htmlspecialchars($plan['access_level']); ?></div>
+
+                            <div class="plan-inclusion-title">Plan Inclusions</div>
+                            <ul class="plan-inclusion-list">
+                                <?php foreach($features as $feature): ?>
+                                    <li><?php echo htmlspecialchars($feature); ?></li>
+                                <?php endforeach; ?>
+                            </ul>
                         </div>
 
-                        <form method="POST">
-                            <input type="hidden" name="plan_id" value="<?php echo $plan['subscription_id']; ?>">
-                            <button type="submit" name="choose_plan" class="choose-plan-btn">Choose Plan</button>
-                        </form>
+                        <a href="user_payment.php?subscription_id=<?php echo $plan['subscription_id']; ?>" class="choose-plan-btn">
+                            Choose Plan
+                        </a>
                     </div>
                 <?php endwhile; ?>
             </div>
