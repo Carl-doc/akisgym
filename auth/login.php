@@ -17,7 +17,9 @@
 
 <div class="login-card">
 
-<div class="login-logo"></div>
+<div class="login-logo">
+    <img src="../assets/logo/logo.png" alt="Gym Logo">
+</div>  
 
 <h1 class="login-title">Aki’s Fitness Gym</h1>
 
