@@ -1,6 +1,18 @@
 <?php
 require_once("../includes/db.php");
 
+/* SUMMARY */
+$summary_query = "
+    SELECT
+        COALESCE(SUM(CASE WHEN payment_status = 'paid' THEN amount ELSE 0 END), 0) AS total_revenue,
+        COUNT(CASE WHEN payment_status = 'paid' THEN 1 END) AS paid_count,
+        COUNT(CASE WHEN payment_status = 'pending' THEN 1 END) AS pending_count
+    FROM tbl_transactions
+";
+$summary_result = mysqli_query($conn, $summary_query);
+$summary = mysqli_fetch_assoc($summary_result);
+
+/* TABLE DATA */
 $query = "
     SELECT 
         t.transaction_id,
@@ -29,6 +41,43 @@ $transactions = mysqli_query($conn, $query);
 <link rel="stylesheet" href="/akisgym/assets/css/style.css">
 
 <style>
+.transaction-stats{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:18px;
+    margin-bottom:24px;
+}
+
+.transaction-stat-card{
+    background:#ffffff;
+    border:1px solid #e5e7eb;
+    border-radius:24px;
+    padding:22px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    box-shadow:0 6px 18px rgba(15, 23, 42, 0.04);
+}
+
+.transaction-stat-card p{
+    margin:0 0 10px;
+    color:#64748b;
+    font-size:14px;
+    font-weight:600;
+}
+
+.transaction-stat-card h3{
+    margin:0;
+    font-size:30px;
+    font-weight:800;
+    color:#0f172a;
+}
+
+.transaction-stat-icon{
+    font-size:36px;
+    opacity:0.35;
+}
+
 .transaction-toolbar{
     display:flex;
     justify-content:space-between;
@@ -133,6 +182,12 @@ $transactions = mysqli_query($conn, $query);
     background:#e5e7eb;
     color:#374151;
 }
+
+@media (max-width:900px){
+    .transaction-stats{
+        grid-template-columns:1fr;
+    }
+}
 </style>
 </head>
 <body class="saas-body">
@@ -202,6 +257,32 @@ $transactions = mysqli_query($conn, $query);
                 <h2>Transaction List</h2>
             </div>
             <div class="page-subtitle">View all recorded payments and transaction statuses.</div>
+
+            <div class="transaction-stats">
+                <div class="transaction-stat-card">
+                    <div>
+                        <p>Total Revenue</p>
+                        <h3>₱<?php echo number_format($summary['total_revenue'], 2); ?></h3>
+                    </div>
+                    <div class="transaction-stat-icon">💰</div>
+                </div>
+
+                <div class="transaction-stat-card">
+                    <div>
+                        <p>Paid Transactions</p>
+                        <h3><?php echo (int)$summary['paid_count']; ?></h3>
+                    </div>
+                    <div class="transaction-stat-icon">✔</div>
+                </div>
+
+                <div class="transaction-stat-card">
+                    <div>
+                        <p>Pending Payments</p>
+                        <h3><?php echo (int)$summary['pending_count']; ?></h3>
+                    </div>
+                    <div class="transaction-stat-icon">⌛</div>
+                </div>
+            </div>
 
             <div class="transaction-toolbar">
                 <div class="transaction-search">
