@@ -2,59 +2,182 @@
 session_start();
 require_once("../includes/db.php");
 
-if(!isset($_SESSION['member_id'])){
+if (!isset($_SESSION['member_id'])) {
     header("Location: ../auth/login.php");
     exit();
 }
 
-$member_id = $_SESSION['member_id'];
+$member_id = (int) $_SESSION['member_id'];
+$error = "";
 
-$query = "
-    SELECT 
-        m.member_code,
-        m.first_name,
-        m.last_name,
-        m.email,
-        m.phone,
-        m.status,
-        s.plan_name,
-        ms.start_date,
-        ms.end_date,
-        ms.status AS subscription_status,
-        t.amount,
-        t.payment_method,
-        t.payment_status,
-        t.payment_date
-    FROM tbl_member m
-    LEFT JOIN tbl_member_subscriptions ms ON m.member_id = ms.member_id
-    LEFT JOIN tbl_subscription s ON ms.subscription_id = s.subscription_id
-    LEFT JOIN tbl_transactions t ON m.member_id = t.member_id
-    WHERE m.member_id = '$member_id'
-    ORDER BY ms.member_subscription_id DESC, t.transaction_id DESC
+/* AUTO STATUS UPDATE */
+mysqli_query($conn, "
+    UPDATE tbl_member_subscriptions
+    SET status = 'pending'
+    WHERE start_date > CURDATE()
+    AND status != 'cancelled'
+");
+
+mysqli_query($conn, "
+    UPDATE tbl_member_subscriptions
+    SET status = 'active'
+    WHERE start_date <= CURDATE()
+    AND end_date >= CURDATE()
+    AND status != 'cancelled'
+");
+
+mysqli_query($conn, "
+    UPDATE tbl_member_subscriptions
+    SET status = 'expired'
+    WHERE end_date < CURDATE()
+    AND status != 'cancelled'
+");
+
+/* GET PLAN ID */
+if (!isset($_GET['subscription_id']) && !isset($_POST['subscription_id'])) {
+    header("Location: user_subscriptions.php");
+    exit();
+}
+
+$subscription_id = isset($_GET['subscription_id'])
+    ? (int) $_GET['subscription_id']
+    : (int) $_POST['subscription_id'];
+
+/* LOAD PLAN */
+$plan_query = mysqli_query($conn, "
+    SELECT *
+    FROM tbl_subscription
+    WHERE subscription_id = '$subscription_id'
+    AND status = 'active'
     LIMIT 1
-";
+");
 
-$result = mysqli_query($conn, $query);
-$user = mysqli_fetch_assoc($result);
+if (!$plan_query || mysqli_num_rows($plan_query) == 0) {
+    die("Invalid subscription plan.");
+}
+
+$plan = mysqli_fetch_assoc($plan_query);
+
+/* HANDLE FORM SUBMIT */
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment'])) {
+
+    $payment_method = trim($_POST['payment_method'] ?? '');
+
+    $allowed_methods = ['cash', 'gcash', 'bank_transfer', 'card'];
+
+    if (empty($payment_method)) {
+        $error = "Please select a payment method.";
+    } elseif (!in_array($payment_method, $allowed_methods)) {
+        $error = "Invalid payment method selected.";
+    } else {
+
+        /* CHECK EXISTING ACTIVE OR PENDING SUBSCRIPTION */
+        $active_check = mysqli_query($conn, "
+            SELECT member_subscription_id
+            FROM tbl_member_subscriptions
+            WHERE member_id = '$member_id'
+            AND status IN ('active', 'pending')
+            LIMIT 1
+        ");
+
+        if (mysqli_num_rows($active_check) > 0) {
+            $error = "You already have an active or pending subscription.";
+        } else {
+
+            $start_date = date("Y-m-d");
+            $end_date = date("Y-m-d", strtotime("+" . (int)$plan['duration_days'] . " days"));
+
+            $payment_status = ($payment_method === 'cash') ? 'paid' : 'pending';
+            $subscription_status = ($payment_method === 'cash') ? 'active' : 'pending';
+
+            $transaction_code = 'TXN-' . date('YmdHis') . '-' . rand(1000, 9999);
+
+            mysqli_begin_transaction($conn);
+
+            try {
+                /* INSERT MEMBER SUBSCRIPTION */
+                $insert_subscription = mysqli_query($conn, "
+                    INSERT INTO tbl_member_subscriptions
+                    (member_id, subscription_id, start_date, end_date, status)
+                    VALUES
+                    ('$member_id', '{$plan['subscription_id']}', '$start_date', '$end_date', '$subscription_status')
+                ");
+
+                if (!$insert_subscription) {
+                    throw new Exception("Failed to save subscription: " . mysqli_error($conn));
+                }
+
+                $member_subscription_id = mysqli_insert_id($conn);
+
+                if (!$member_subscription_id) {
+                    throw new Exception("Failed to get member subscription ID.");
+                }
+
+                /* INSERT TRANSACTION */
+                $insert_transaction = mysqli_query($conn, "
+                    INSERT INTO tbl_transactions
+                    (
+                        transaction_code,
+                        member_subscription_id,
+                        member_id,
+                        subscription_id,
+                        amount,
+                        payment_method,
+                        payment_status,
+                        payment_date
+                    )
+                    VALUES
+                    (
+                        '$transaction_code',
+                        '$member_subscription_id',
+                        '$member_id',
+                        '{$plan['subscription_id']}',
+                        '{$plan['price']}',
+                        '$payment_method',
+                        '$payment_status',
+                        NOW()
+                    )
+                ");
+
+                if (!$insert_transaction) {
+                    throw new Exception("Failed to save transaction: " . mysqli_error($conn));
+                }
+
+                mysqli_commit($conn);
+
+                header("Location: user_dashboard.php?payment=success");
+                exit();
+
+            } catch (Exception $e) {
+                mysqli_rollback($conn);
+                $error = $e->getMessage();
+            }
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>User Dashboard | Aki's Fitness Gym</title>
+<title>Payment | Aki's Fitness Gym</title>
 <link rel="stylesheet" href="/akisgym/assets/css/style.css">
 
 <style>
-.user-dashboard-grid{
+.payment-wrapper{
+    max-width:900px;
+    margin:0 auto;
+}
+
+.payment-grid{
     display:grid;
-    grid-template-columns:320px 1fr;
+    grid-template-columns:1fr 1fr;
     gap:20px;
 }
 
-.user-card,
-.user-subscription-card,
-.user-payment-card{
+.payment-card,
+.summary-card{
     background:#ffffff;
     border:1px solid #e5e7eb;
     border-radius:24px;
@@ -62,51 +185,32 @@ $user = mysqli_fetch_assoc($result);
     box-shadow:0 6px 18px rgba(15, 23, 42, 0.04);
 }
 
-.user-card{
-    text-align:center;
-}
-
-.user-avatar-large{
-    width:90px;
-    height:90px;
-    margin:0 auto 16px;
-    border-radius:50%;
-    background:#111827;
-    color:#fff;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:30px;
-    font-weight:800;
-}
-
-.user-name{
+.card-title{
     font-size:24px;
     font-weight:800;
-    margin-bottom:6px;
     color:#0f172a;
+    margin-bottom:8px;
 }
 
-.user-email{
+.card-subtitle{
     color:#64748b;
     font-size:14px;
-    margin-bottom:18px;
+    margin-bottom:20px;
 }
 
-.user-info{
+.summary-box{
     display:grid;
-    gap:12px;
-    text-align:left;
+    gap:14px;
 }
 
-.user-info-box{
-    padding:14px;
+.summary-item{
+    padding:14px 16px;
     border:1px solid #e5e7eb;
     border-radius:14px;
     background:#f8fafc;
 }
 
-.user-info-box label{
+.summary-item label{
     display:block;
     font-size:12px;
     color:#64748b;
@@ -114,83 +218,101 @@ $user = mysqli_fetch_assoc($result);
     font-weight:600;
 }
 
-.user-info-box span{
-    font-size:14px;
-    font-weight:700;
-    color:#0f172a;
-}
-
-.user-main{
-    display:grid;
-    gap:20px;
-}
-
-.user-subscription-card h3,
-.user-payment-card h3{
-    margin:0 0 6px;
-    font-size:22px;
-}
-
-.user-subscription-card p,
-.user-payment-card p{
-    margin:0 0 20px;
-    color:#64748b;
-    font-size:14px;
-}
-
-.user-sub-grid{
-    display:grid;
-    grid-template-columns:repeat(2, 1fr);
-    gap:14px;
-}
-
-.user-sub-box{
-    padding:16px;
-    border:1px solid #e5e7eb;
-    border-radius:16px;
-    background:#f8fafc;
-}
-
-.user-sub-box label{
-    display:block;
-    font-size:12px;
-    color:#64748b;
-    margin-bottom:6px;
-    font-weight:600;
-}
-
-.user-sub-box span{
+.summary-item span{
     font-size:16px;
     font-weight:800;
     color:#0f172a;
 }
 
-.user-status{
-    display:inline-block;
-    padding:8px 12px;
-    border-radius:999px;
-    font-size:12px;
-    font-weight:700;
-    background:#dcfce7;
-    color:#166534;
+.payment-methods{
+    display:grid;
+    gap:14px;
+    margin-top:14px;
 }
 
-.user-payment-status{
-    display:inline-block;
-    padding:8px 12px;
-    border-radius:999px;
-    font-size:12px;
+.method-option{
+    border:1px solid #e5e7eb;
+    border-radius:16px;
+    padding:14px 16px;
+    background:#f8fafc;
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.method-option input{
+    transform:scale(1.1);
+}
+
+.method-option label{
+    font-size:15px;
     font-weight:700;
-    background:#dbeafe;
+    color:#0f172a;
+    cursor:pointer;
+    width:100%;
+}
+
+.info-note{
+    margin-top:16px;
+    padding:14px 16px;
+    border-radius:14px;
+    background:#eff6ff;
+    border:1px solid #bfdbfe;
     color:#1d4ed8;
+    font-size:14px;
+    font-weight:600;
+}
+
+.error-box{
+    background:#fee2e2;
+    color:#991b1b;
+    border:1px solid #fecaca;
+    padding:14px 16px;
+    border-radius:14px;
+    margin-bottom:20px;
+    font-size:14px;
+    font-weight:600;
+}
+
+.payment-actions{
+    display:flex;
+    gap:12px;
+    margin-top:24px;
+    flex-wrap:wrap;
+}
+
+.pay-btn,
+.back-btn{
+    text-decoration:none;
+    border:none;
+    border-radius:14px;
+    height:48px;
+    padding:0 20px;
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.pay-btn{
+    background:linear-gradient(135deg, #4f46e5, #4338ca);
+    color:#fff;
+}
+
+.back-btn{
+    background:#e5e7eb;
+    color:#111827;
+}
+
+.pay-btn:hover,
+.back-btn:hover{
+    opacity:.95;
 }
 
 @media (max-width:900px){
-    .user-dashboard-grid{
-        grid-template-columns:1fr;
-    }
-
-    .user-sub-grid{
+    .payment-grid{
         grid-template-columns:1fr;
     }
 }
@@ -206,17 +328,17 @@ $user = mysqli_fetch_assoc($result);
             <div class="saas-brand-text">Aki's Fitness Gym</div>
         </div>
 
-       <nav class="saas-menu">
-    <a href="user_dashboard.php" class="saas-link active">
-        <span class="saas-link-icon">☺</span>
-        <span>User Dashboard</span>
-    </a>
+        <nav class="saas-menu">
+            <a href="user_dashboard.php" class="saas-link">
+                <span class="saas-link-icon">☺</span>
+                <span>User Dashboard</span>
+            </a>
 
-    <a href="user_subscriptions.php" class="saas-link">
-        <span class="saas-link-icon">◉</span>
-        <span>Subscription Plans</span>
-    </a>
-</nav>
+            <a href="user_subscriptions.php" class="saas-link active">
+                <span class="saas-link-icon">◉</span>
+                <span>Subscription Plans</span>
+            </a>
+        </nav>
     </aside>
 
     <div class="saas-main">
@@ -224,8 +346,8 @@ $user = mysqli_fetch_assoc($result);
         <header class="saas-topbar">
             <div class="saas-topbar-left">
                 <div>
-                    <h2>User Dashboard</h2>
-                    <p>Welcome back, <?php echo htmlspecialchars($_SESSION['member_name']); ?></p>
+                    <h2>Payment Page</h2>
+                    <p>Choose your payment method to continue your subscription</p>
                 </div>
             </div>
 
@@ -235,100 +357,88 @@ $user = mysqli_fetch_assoc($result);
         </header>
 
         <main class="saas-content">
+            <div class="payment-wrapper">
 
-            <div class="user-dashboard-grid">
+                <?php if (!empty($error)): ?>
+                    <div class="error-box"><?php echo htmlspecialchars($error); ?></div>
+                <?php endif; ?>
 
-                <div class="user-card">
-                    <div class="user-avatar-large">
-                        <?php echo strtoupper(substr($user['first_name'], 0, 1)); ?>
-                    </div>
+                <div class="payment-grid">
 
-                    <div class="user-name">
-                        <?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?>
-                    </div>
+                    <div class="summary-card">
+                        <div class="card-title">Selected Plan</div>
+                        <div class="card-subtitle">Review your chosen subscription details</div>
 
-                    <div class="user-email">
-                        <?php echo htmlspecialchars($user['email']); ?>
-                    </div>
-
-                    <div class="user-info">
-                        <div class="user-info-box">
-                            <label>Member Code</label>
-                            <span><?php echo htmlspecialchars($user['member_code']); ?></span>
-                        </div>
-
-                        <div class="user-info-box">
-                            <label>Phone</label>
-                            <span><?php echo htmlspecialchars($user['phone']); ?></span>
-                        </div>
-
-                        <div class="user-info-box">
-                            <label>Account Status</label>
-                            <span><?php echo htmlspecialchars($user['status']); ?></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="user-main">
-
-                    <div class="user-subscription-card">
-                        <h3>Current Subscription</h3>
-                        <p>Your latest gym membership plan details</p>
-
-                        <div class="user-sub-grid">
-                            <div class="user-sub-box">
-                                <label>Plan</label>
-                                <span><?php echo htmlspecialchars($user['plan_name'] ?? 'No Plan'); ?></span>
+                        <div class="summary-box">
+                            <div class="summary-item">
+                                <label>Plan Name</label>
+                                <span><?php echo htmlspecialchars($plan['plan_name']); ?></span>
                             </div>
 
-                            <div class="user-sub-box">
-                                <label>Status</label>
-                                <span class="user-status"><?php echo htmlspecialchars($user['subscription_status'] ?? 'N/A'); ?></span>
+                            <div class="summary-item">
+                                <label>Description</label>
+                                <span><?php echo htmlspecialchars($plan['description']); ?></span>
                             </div>
 
-                            <div class="user-sub-box">
-                                <label>Start Date</label>
-                                <span><?php echo htmlspecialchars($user['start_date'] ?? 'N/A'); ?></span>
+                            <div class="summary-item">
+                                <label>Duration</label>
+                                <span><?php echo htmlspecialchars($plan['duration_days']); ?> days</span>
                             </div>
 
-                            <div class="user-sub-box">
-                                <label>End Date</label>
-                                <span><?php echo htmlspecialchars($user['end_date'] ?? 'N/A'); ?></span>
+                            <div class="summary-item">
+                                <label>Access Level</label>
+                                <span><?php echo htmlspecialchars($plan['access_level']); ?></span>
+                            </div>
+
+                            <div class="summary-item">
+                                <label>Amount to Pay</label>
+                                <span>₱<?php echo number_format($plan['price'], 2); ?></span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="user-payment-card">
-                        <h3>Latest Payment</h3>
-                        <p>Your most recent payment transaction</p>
+                    <div class="payment-card">
+                        <div class="card-title">Choose Payment Method</div>
+                        <div class="card-subtitle">Select one method to complete your subscription</div>
 
-                        <div class="user-sub-grid">
-                            <div class="user-sub-box">
-                                <label>Amount Paid</label>
-                                <span><?php echo isset($user['amount']) ? '₱' . number_format($user['amount'], 2) : 'N/A'; ?></span>
+                        <form method="POST">
+                            <input type="hidden" name="subscription_id" value="<?php echo $plan['subscription_id']; ?>">
+
+                            <div class="payment-methods">
+                                <div class="method-option">
+                                    <input type="radio" id="cash" name="payment_method" value="cash" <?php echo (isset($_POST['payment_method']) && $_POST['payment_method'] === 'cash') ? 'checked' : ''; ?>>
+                                    <label for="cash">Cash</label>
+                                </div>
+
+                                <div class="method-option">
+                                    <input type="radio" id="gcash" name="payment_method" value="gcash" <?php echo (isset($_POST['payment_method']) && $_POST['payment_method'] === 'gcash') ? 'checked' : ''; ?>>
+                                    <label for="gcash">GCash</label>
+                                </div>
+
+                                <div class="method-option">
+                                    <input type="radio" id="bank_transfer" name="payment_method" value="bank_transfer" <?php echo (isset($_POST['payment_method']) && $_POST['payment_method'] === 'bank_transfer') ? 'checked' : ''; ?>>
+                                    <label for="bank_transfer">Bank Transfer</label>
+                                </div>
+
+                                <div class="method-option">
+                                    <input type="radio" id="card" name="payment_method" value="card" <?php echo (isset($_POST['payment_method']) && $_POST['payment_method'] === 'card') ? 'checked' : ''; ?>>
+                                    <label for="card">Card</label>
+                                </div>
                             </div>
 
-                            <div class="user-sub-box">
-                                <label>Payment Method</label>
-                                <span><?php echo htmlspecialchars($user['payment_method'] ?? 'N/A'); ?></span>
+                            <div class="info-note">
+                                Cash payments are marked as paid immediately. Other methods remain pending until verified.
                             </div>
 
-                            <div class="user-sub-box">
-                                <label>Payment Date</label>
-                                <span><?php echo htmlspecialchars($user['payment_date'] ?? 'N/A'); ?></span>
+                            <div class="payment-actions">
+                                <a href="user_subscriptions.php" class="back-btn">Back</a>
+                                <button type="submit" name="confirm_payment" class="pay-btn">Confirm Payment</button>
                             </div>
-
-                            <div class="user-sub-box">
-                                <label>Payment Status</label>
-                                <span class="user-payment-status"><?php echo htmlspecialchars($user['payment_status'] ?? 'N/A'); ?></span>
-                            </div>
-                        </div>
+                        </form>
                     </div>
 
                 </div>
-
             </div>
-
         </main>
     </div>
 </div>
