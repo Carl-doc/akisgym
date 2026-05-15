@@ -24,8 +24,8 @@
                     <label for="email">Email</label>
                     <input 
                         type="text"
-                        id="email"
-                        name="email"
+                        id="Email"
+                        name="Email"
                         placeholder="Enter your email"
                         required
                     >
