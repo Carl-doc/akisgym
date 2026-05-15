@@ -21,11 +21,11 @@
 
             <form action="process_login.php" method="POST" class="login-form">
                 <div class="form-group">
-                    <label for="username">Username</label>
+                    <label for="email">Email</label>
                     <input 
                         type="text"
-                        id="username"
-                        name="username"
+                        id="email"
+                        name="email"
                         placeholder="Enter your email"
                         required
                     >
