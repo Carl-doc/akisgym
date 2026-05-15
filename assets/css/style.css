@@ -155,35 +155,37 @@ body.landing-body{
 
 /*LOGIN PAGE
 */
-body.auth-body{
-    margin:0;
-    background:#000;
-    min-height:100vh;
+body.auth-body {
+    margin: 0;
+    background: #000;
+    height: 100vh;        /* Changed from min-height: 110vh */
+    overflow: hidden;     /* Removes scrollbar */
 }
 
-.auth-wrapper{
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    padding:40px;
+.auth-wrapper {
+    height: 100vh;        /* Changed from min-height: 110vh */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;           /* Removed 40px padding that was causing gaps */
 }
 
-.auth-panel{
-    width:100%;
-    max-width:1000px;
-    min-height:680px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:linear-gradient(
+.auth-panel {
+    width: 100vw;
+    height: 100vh;        /* Changed from 110vh */
+    max-width: none;
+    min-height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(
         90deg,
         rgba(0,0,0,0.96) 0%,
         rgba(45,45,45,0.90) 30%,
         rgba(170,170,170,0.80) 68%,
         rgba(245,245,245,0.90) 100%
     );
-    box-shadow:0 0 40px rgba(0,0,0,0.35);
+    box-shadow: 0 0 40px rgba(0,0,0,0.35);
 }
 
 .login-card{
