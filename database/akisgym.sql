@@ -43,8 +43,8 @@ CREATE TABLE `tbl_admin` (
 --
 
 INSERT INTO `tbl_admin` (`admin_id`, `full_name`, `email`, `password`, `role`, `status`, `created_at`, `updated_at`) VALUES
-(1, 'System Admin', 'admin@gym.com', '$2a$10$abcdefghijklmnopqrstuv', 'super_admin', 'active', '2026-03-11 10:56:11', '2026-03-11 10:56:11'),
-(2, 'Staff User', 'staff@gym.com', '$2a$10$abcdefghijklmnopqrstuv', 'staff', 'active', '2026-03-11 10:56:11', '2026-03-11 10:56:11');
+(1, 'System Admin', 'admin@gym.com', '123123', 'super_admin', 'active', '2026-03-11 10:56:11', '2026-03-11 10:56:11'),
+(2, 'Staff User', 'staff@gym.com', '123123', 'staff', 'active', '2026-03-11 10:56:11', '2026-03-11 10:56:11');
 
 -- --------------------------------------------------------
 
@@ -66,8 +66,8 @@ CREATE TABLE `tbl_logs` (
 --
 
 INSERT INTO `tbl_logs` (`log_id`, `admin_id`, `action`, `description`, `ip_address`, `created_at`) VALUES
-(1, 1, 'Created Member', 'Added member John Doe', '127.0.0.1', '2026-03-11 10:56:11'),
-(2, 1, 'Processed Payment', 'Recorded VIP payment for Maria Santos', '127.0.0.1', '2026-03-11 10:56:11');
+(1, 1, 'Created Member', 'Added member Joshua Reyes', '127.0.0.1', '2026-03-11 10:56:11'),
+(2, 1, 'Processed Payment', 'Recorded VIP payment for Carl Naraja', '127.0.0.1', '2026-03-11 10:56:11');
 
 -- --------------------------------------------------------
 
@@ -100,9 +100,8 @@ CREATE TABLE `tbl_member` (
 --
 
 INSERT INTO `tbl_member` (`member_id`, `member_code`, `first_name`, `last_name`, `gender`, `birth_date`, `email`, `password`, `phone`, `address`, `emergency_contact_name`, `emergency_contact_phone`, `profile_image`, `status`, `joined_date`, `created_at`, `updated_at`) VALUES
-(1, 'MBR-001', 'John', 'Doe', 'male', '2000-05-10', 'john@example.com', '', '09123456789', 'Tacloban City', 'Jane Doe', '09987654321', NULL, 'active', '2026-03-11', '2026-03-11 10:56:11', '2026-03-11 10:56:11'),
-(2, 'MBR-002', 'Maria', 'Santos', 'female', '1998-08-21', 'maria@example.com', '', '09111222333', 'Ormoc City', 'Pedro Santos', '09998887777', NULL, 'active', '2026-03-11', '2026-03-11 10:56:11', '2026-03-11 10:56:11'),
-(3, 'MBR-003', 'joshua', 'reyes', 'male', NULL, 'joshua@gym.com', '$2y$10$flOWlks3gLgHZSX2hoqWae/wHFQJ.o21IvkUDkek5JeDeCAYmwTbW', '09123456789', NULL, NULL, NULL, NULL, 'active', '2026-03-11', '2026-03-11 10:58:22', '2026-03-11 10:58:22');
+(1, 'MBR-001', 'Joshua', 'Reyes', 'male', '2000-05-10', 'joshua@gym.com', '', '09123456789', 'Tacloban City', 'Jane Reyes', '09987654321', NULL, 'active', '2026-03-11', '2026-03-11 10:56:11', '2026-03-11 10:56:11'),
+(2, 'MBR-002', 'Carl', 'Naraja', 'female', '1998-08-21', 'carl@gym.com', '', '09111222333', 'Ormoc City', 'Pedro Naraja', '09998887777', NULL, 'active', '2026-03-11', '2026-03-11 10:56:11', '2026-03-11 10:56:11'),
 
 -- --------------------------------------------------------
 
